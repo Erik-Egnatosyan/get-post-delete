@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Data.SqlClient;
 using WebApplication1.Models;
 
 namespace WebApplication1.Controllers
@@ -36,6 +37,29 @@ namespace WebApplication1.Controllers
             {
                 return NotFound();
             }
+        }
+        private string _connectionString = "Data Source=(localdb)\\mssqllocaldb;Initial Catalog=VegaVestaNew;Integrated Security=True";
+
+        [HttpGet("AllBrandNames")]
+        public ActionResult<List<string>> GetAllBrandNames()
+        {
+            List<string> brandNames = new List<string>();
+
+            using (SqlConnection connection = new SqlConnection(_connectionString))
+            {
+                string query = "SELECT VegaBrandName FROM VegaBrand";
+                SqlCommand command = new SqlCommand(query, connection);
+                connection.Open();
+
+                using (SqlDataReader reader = command.ExecuteReader())
+                {
+                    while (reader.Read())
+                    {
+                        brandNames.Add(reader.GetString(0));
+                    }
+                }
+            }
+            return Ok(brandNames);
         }
     }
 }
